@@ -320,7 +320,7 @@ bool SampleApplication::initResources()
 	// Overlays
 	_fontMatRes = h3dAddResource( H3DResTypes::Material, "overlays/font.material.xml", 0 );
 	_panelMatRes = h3dAddResource( H3DResTypes::Material, "overlays/panel.material.xml", 0 );
-	_logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
+	//~ _logoMatRes = h3dAddResource( H3DResTypes::Material, "overlays/logo.material.xml", 0 );
 
     // Help info
     _helpLabels = new const char*[_helpRows];
