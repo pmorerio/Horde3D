@@ -162,6 +162,8 @@ private:
     int          _benchmarkLength;
     float        _curFPS;
     double       _t0;
+    bool         _is_recording;     
+    int          _rec_frames;  
 
     GLFWwindow*  _winHandle;
 	std::string  _winTitle;
@@ -178,6 +180,8 @@ private:
     int          _freezeMode;
     bool         _debugViewMode, _wireframeMode;
     bool         _showHelpPanel;
+
+    std::string  _savePath;
 };
 
 #endif // _sample_app_H_

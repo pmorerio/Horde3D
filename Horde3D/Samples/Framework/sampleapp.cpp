@@ -18,12 +18,16 @@
 
 #include "sampleapp.h"
 #include "Horde3DUtils.h"
+#include <sstream>
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <math.h>
 #include <iomanip>
+#include <sys/types.h> // required for stat.h
+#include <sys/stat.h> // no clue why required -- man pages say so
+#include <ctime>
 
 using namespace std;
 
@@ -79,7 +83,7 @@ SampleApplication::SampleApplication(int argc, char** argv,
     _x(15), _y(3), _z(20),
     _rx(-10), _ry(60),
     _velocity(0.1f),
-	_helpRows(12), _helpLabels(0), _helpValues(0),
+	_helpRows(13), _helpLabels(0), _helpValues(0),
 	_renderInterface( renderer ),
     _curPipeline(0),
     _cam(0),
@@ -98,7 +102,8 @@ SampleApplication::SampleApplication(int argc, char** argv,
     _winShowCursor(show_cursor), _winHasCursor(false),
     _fov(fov), _nearPlane(near_plane), _farPlane(far_plane),
     _statMode(0), _freezeMode(0),
-    _debugViewMode(false), _wireframeMode(false),_showHelpPanel(false)
+    _debugViewMode(false), _wireframeMode(false),_showHelpPanel(false),
+    _is_recording(false),_rec_frames(0)
 {
     // Initialize GLFW
     glfwInit();
@@ -338,6 +343,7 @@ bool SampleApplication::initResources()
     if ( _helpRows > 9 ) { _helpLabels[9] = "Space:"; _helpValues[9] = "Freeze (...)"; }
     if ( _helpRows > 10 ) { _helpLabels[10] = "W/A/S/D:"; _helpValues[10] = "Movement"; }
     if ( _helpRows > 11 ) { _helpLabels[11] = "LShift:"; _helpValues[11] = "Turbo"; }
+    if ( _helpRows > 12 ) { _helpLabels[12] = "R:"; _helpValues[12] = "Record video"; }
 	
 	// 2. Load resources
 
@@ -400,6 +406,7 @@ void SampleApplication::update()
             _x += sinf( H3D_DEG2RAD * ( _ry + 90 ) ) * curVel;
             _z += cosf( H3D_DEG2RAD * ( _ry + 90 ) ) * curVel;
         }
+
     }
 }
 
@@ -445,16 +452,26 @@ void SampleApplication::render()
     }
 
     // Show logo
-    const float ovLogo[] = {
-        ww-0.29f, 0.87f, 0, 1,
-        ww-0.29f, 0.97f, 0, 0,
-        ww-0.03f, 0.97f, 1, 0,
-        ww-0.03f, 0.87f, 1, 1
-    };
-    h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
+    // const float ovLogo[] = {
+    //     ww-0.29f, 0.87f, 0, 1,
+    //     ww-0.29f, 0.97f, 0, 0,
+    //     ww-0.03f, 0.97f, 1, 0,
+    //     ww-0.03f, 0.87f, 1, 1
+    // };
+    // h3dShowOverlays( ovLogo, 4, 1.f, 1.f, 1.f, 1.f, _logoMatRes, 0 );
 	
 	// Render scene
     h3dRender( _cam );
+
+    // 5. ...possibly write to file...
+    if(_is_recording)
+    {
+        std::stringstream filename;
+        filename << _savePath << "/frame" << std::setw(10) << std::setfill('0') << _rec_frames++ << ".tga";
+        // filename << _savePath << "/frame.tga";
+        h3dutScreenshot(filename.str().c_str());
+    }
+
 }
 
 
@@ -538,6 +555,31 @@ void SampleApplication::keyEventHandler( int key, int scancode, int action, int 
     case GLFW_KEY_F11:
     {
         toggleFullScreen();
+    }
+    break;
+
+    case GLFW_KEY_R:
+    {
+        // start/stop recording
+        _is_recording = !_is_recording;
+
+        // create a folder to save output for a new recording
+        if(_is_recording)
+        {
+            _rec_frames = 0; // recorded frames counter
+            std::time_t result = std::time(NULL);
+            _savePath = std::asctime(std::localtime(&result));
+            _savePath.resize (_savePath.size () - 1); // there is an extra \n
+            int nError = 0;
+            mode_t nMode = 0733; // UNIX style permissions
+            
+            #if defined(WIN32)
+                nError = _mkdir(_savePath.c_str()); // Windows
+            #else 
+                nError = mkdir(_savePath.c_str(), nMode); //  non-Windows
+            #endif
+        }
+        
     }
     break;
     }

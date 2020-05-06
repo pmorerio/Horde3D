@@ -27,4 +27,7 @@ copyrighted by ATI Technologies, Inc.
 
 ## Some useful stuff
 http://www.horde3d.org/forums/viewtopic.php?f=1&t=732&p=4551&hilit=record+video#p4551
+http://www.horde3d.org/docs/html/_utils.html#h3dutCreateTGAImage
+http://www.horde3d.org/docs/html/_api.html#h3dGetRenderTargetData
+
 http://www.horde3d.org/docs/html/_tutorial.html
