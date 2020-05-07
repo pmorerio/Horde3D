@@ -1,0 +1,1 @@
+ffmpeg -start_number 2 -i frame%010d.tga -c:v libx264 -r 30 -pix_fmt yuv420p out.mp4

@@ -463,11 +463,11 @@ void SampleApplication::render()
 	// Render scene
     h3dRender( _cam );
 
-    // 5. ...possibly write to file...
+    // ...possibly write to file...
     if(_is_recording)
     {
         std::stringstream filename;
-        filename << _savePath << "/frame" << std::setw(10) << std::setfill('0') << _rec_frames++ << ".tga";
+        filename << _savePath << "/frame" << std::setw(10) << std::setfill('0') << _rec__frames++ << ".tga";
         // filename << _savePath << "/frame.tga";
         h3dutScreenshot(filename.str().c_str());
     }
